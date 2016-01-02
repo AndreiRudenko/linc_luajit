@@ -189,7 +189,7 @@ class LuaWrapper {
             case Type.ValueType.TBool:
                 Lua.pushboolean(vm, val);
             case Type.ValueType.TInt:
-                Lua.pushinteger(vm, val);
+                Lua.pushinteger(vm, cast(val, Int));
             case Type.ValueType.TFloat:
                 Lua.pushnumber(vm, val);
             case Type.ValueType.TClass(String):
