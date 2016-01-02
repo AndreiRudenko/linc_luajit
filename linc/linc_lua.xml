@@ -1,0 +1,20 @@
+<xml>
+
+    <files id='haxe'>
+
+        <compilerflag value='-I${LINC_LUA_PATH}/linc/'/>
+        <file name='${LINC_LUA_PATH}linc/linc_lua.cpp' />
+
+    </files>
+
+    <files id="__main__">
+        <compilerflag value='-I${LINC_LUA_PATH}linc/'/>
+    </files>
+    
+    <target id="haxe">
+        <section if="windows">
+            <lib name='${LINC_LUA_PATH}lib/Lua/lib/lua51.lib' if='HXCPP_M32' />
+        </section>
+    </target>
+
+</xml>
