@@ -7,9 +7,6 @@ namespace linc {
 
     namespace lua {
 
-        // int version(){
-        // 	return LUA_VERSION_NUM;
-        // }
         ::String version(){
         	return ::String(LUA_VERSION);
         }
@@ -29,6 +26,33 @@ namespace linc {
             return ::String(lua_typename(l, v));
         }
 
-    } //empty namespace
+        // callbacks
+
+        static luaCallbackFN event_fn = 0;
+        static int luaCallback(lua_State *L){
+            // printf("luaCallback!!!");
+            return event_fn(L, ::String(lua_tostring(L, lua_upvalueindex(1))));
+        }
+
+        void callbacks_register(lua_State *L, const char *name, luaCallbackFN fn){
+            event_fn = fn;
+        }
+
+        void add_lua_callback(lua_State *L, const char *name){
+            my_lua_register(L, name, luaCallback);
+        }
+
+        void remove_lua_callback(lua_State *L, const char *name){
+            lua_pushnil(L);
+            lua_setglobal(L, name);
+        }
+
+        void my_lua_register(lua_State *L, const char *name, lua_CFunction f) {
+            lua_pushstring(L, name);
+            lua_pushcclosure(L, f, 1);
+            lua_setglobal(L, name);
+        }
+
+    } // lua
 
 } //linc

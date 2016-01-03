@@ -12,7 +12,7 @@ class LuaWrapper {
 	public function new() {
 		vm = LuaL.newstate();
     	LuaL.openlibs(vm);
-
+    	Lua.init_callbacks(vm);
 	}
 
 	public function close() {
@@ -38,12 +38,13 @@ class LuaWrapper {
 	 */
 	public function loadLibs(libs:Array<String>):Void {}
 
-	/**
-	 * Defines variables in the lua vars
-	 * @param vars An object defining the lua variables to create
-	 */
-	public function setVars(vars:Dynamic):Void {
-		// lua_load_context(vm, vars);
+
+	public function setFunction(fname:String, f:Dynamic):Void {
+        Lua.register(vm, fname,f);
+	}
+
+	public function removeFunction(fname:String):Void {
+        Lua_helper.remove_callback(vm, fname);
 	}
 
 	/**
@@ -58,7 +59,7 @@ class LuaWrapper {
 		if(LuaL.dostring(vm, script) != 0){
 			trace("LUA execute error : " + Lua.tostring(vm, -1));
 		} else if(retVal){
-			ret = lua_to_haxe(-1);
+			ret = LuaConvert.lua_to_haxe(vm, -1);
 
 
 /*			if(Lua.gettop(vm) > 1){ // for multi return
@@ -93,7 +94,7 @@ class LuaWrapper {
 		if(LuaL.dofile(vm, path) != 0){
 			trace("LUA executeFile error : " + Lua.tostring(vm, -1));
 		} else if(retVal){
-            return lua_to_haxe(-1);
+            return LuaConvert.lua_to_haxe(vm, -1);
 		}
 
         Lua.settop(vm, oldtop);
@@ -121,7 +122,7 @@ class LuaWrapper {
                 var arr:Array<Dynamic>;
                 arr = cast args;
                 for (a in arr) {
-                    if(haxe_to_lua(a)){
+                    if(LuaConvert.haxe_to_lua(vm, a)){
                         nargs++;
                     }
                 }
@@ -129,7 +130,7 @@ class LuaWrapper {
 					trace("LUA call error : " + Lua.tostring(vm, -1));
 	        	}
             } else {
-                if(haxe_to_lua(args)){
+                if(LuaConvert.haxe_to_lua(vm, args)){
                 	if(Lua.pcall(vm, 1, 1, 0) != 0){
 						trace("LUA call error : " + Lua.tostring(vm, -1));
 		        	}
@@ -143,7 +144,7 @@ class LuaWrapper {
         var hv:Dynamic = null;
 
         if(retVal){
-            hv = lua_to_haxe(-1);
+            hv = LuaConvert.lua_to_haxe(vm, -1);
         }
 
         Lua.settop(vm, oldtop);
@@ -182,138 +183,5 @@ class LuaWrapper {
 		return null;
 	}
 
-	function haxe_to_lua(val:Dynamic):Bool {
-		switch (Type.typeof(val)) {
-            case Type.ValueType.TNull:
-                Lua.pushnil(vm);
-            case Type.ValueType.TBool:
-                Lua.pushboolean(vm, val);
-            case Type.ValueType.TInt:
-                Lua.pushinteger(vm, cast(val, Int));
-            case Type.ValueType.TFloat:
-                Lua.pushnumber(vm, val);
-            case Type.ValueType.TClass(String):
-                Lua.pushstring(vm, cast(val, String));
-            case Type.ValueType.TClass(Array):
-                haxe_array_to_lua(val);
-            case Type.ValueType.TObject:
-            	haxe_object_to_lua(val); // {}
-            case Type.ValueType.TFunction:
-                trace("TFunction");
-            default:
-                trace("haxe value not supported\n");
-                return false;
-        }
-        return true;
-	}
-
-	function haxe_array_to_lua(arr:Array<Dynamic>) {
-		var size:Int = arr.length;
-		Lua.createtable(vm, size, 0);
-		for (i in 0...size) {
-			Lua.pushnumber(vm, i + 1);
-			haxe_to_lua(arr[i]);
-			Lua.settable(vm, -3);
-		}
-	}
-
-	function haxe_object_to_lua(res:Dynamic) {
-		Lua.createtable(vm, 0, 0);
-		for (n in Reflect.fields(res)){
-			Lua.pushstring(vm, n);
-			haxe_to_lua(Reflect.field(res, n));
-			Lua.settable(vm, -3);
-	    }
-	}
-
-    function lua_to_haxe(v:Int) {
-        // trace("sq_value_to_haxe\n");
-        var ret:Dynamic = null;
-
-        switch(Lua.type(vm, v)) {
-            case Lua.LUA_TNIL:
-                ret = null;
-            case Lua.LUA_TBOOLEAN:
-                ret = Lua.toboolean(vm, v) == 0 ? false : true;
-            case Lua.LUA_TNUMBER:
-            	var n:Float = Lua.tonumber(vm, v);
-            	ret = (n % 1) == 0 ? Std.int(n) : n;
-            case Lua.LUA_TSTRING:
-                ret = Lua.tostring(vm, v);
-            case Lua.LUA_TTABLE:
-                ret = lua_table_to_haxe();
-            case Lua.LUA_TFUNCTION:
-                trace("function\n");
-            case Lua.LUA_TUSERDATA:
-                trace("userdata\n");
-            case Lua.LUA_TTHREAD:
-                trace("thread\n");
-            case Lua.LUA_TLIGHTUSERDATA:
-                trace("lightuserdata\n");
-            default:
-                trace("return value not supported\n");
-        }
-        return ret;
-    }
-
-	function lua_table_to_haxe():Dynamic {
-		// trace("\nlua_table_to_haxe");
-		var array:Bool = true;
-		var ret:Dynamic = null;
-
-        Lua.pushnil(vm);
-	    while(Lua.next(vm,-2) != 0) {
-			if (Lua.type(vm, -2) != Lua.LUA_TNUMBER) {
-				array = false;
-            	Lua.pop(vm,2);
-            	break;
-			} 
-            Lua.pop(vm,1);
-        }
-		
-        if(array){
-			var arr:Array<Dynamic> = [];
-	        Lua.pushnil(vm);
-	        while(Lua.next(vm,-2) != 0) {
-				var index:Int = Lua.tointeger(vm, -2) - 1; // lua has 1 based indices instead of 0
-				arr[index] = lua_to_haxe(-1);
-	            Lua.pop(vm,1);
-	        }
-	        ret = arr;
-        } else {
-        	var obj:Anon_obj = Anon_obj.create(); // {}
-	        Lua.pushnil(vm);
-	        while(Lua.next(vm,-2) != 0) {
-                obj.Add(Std.string(lua_to_haxe(-2)), lua_to_haxe(-1));
-	            Lua.pop(vm,1);
-	        }
-	        ret = obj;
-        }
-
-        return ret;
-	}
-
-	public function stackDump(){
-        var top:Int = Lua.gettop(vm);
-        trace("---------------- Stack Dump ----------------");
-	    for (i in 0...top) {
-        	trace( i + " " + lua_to_haxe(i));
-	    }
-        trace("---------------- Stack Dump Finished ----------------");
-	}
-
 }
 
-
-// Anon_obj from hxcpp
-@:include('hxcpp.h')
-@:native('hx::Anon')
-private extern class Anon {
-
-    @:native('hx::Anon_obj::Create')
-    public static function create() : Anon_obj;
-
-    @:native('hx::Anon_obj::Add')
-    public function Add(k:String, v:Dynamic):Void;
-}
-typedef Anon_obj = Anon;

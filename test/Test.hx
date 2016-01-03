@@ -9,7 +9,6 @@ class Test {
     	var lua:LuaWrapper = new LuaWrapper();
     	trace(LuaWrapper.version);
     	trace(LuaWrapper.versionJIT);
-        lua.executeFile('script.lua');
 
 
         trace(lua.execute('return true', true));
@@ -20,6 +19,16 @@ class Test {
         trace(lua.execute('return {1, 3.5, 123, "some string", {754, 12.23, "some string"}}', true));
         trace(lua.execute('return {a = 123, b = "some text", c = 53.67, d = {1,2,3,4}}', true));
 
+        
+        // callbacks
+        lua.setFunction("callBack", 
+            function(a:String, b:Float) {
+                trace("callBack function called! : " + a + " " + b);
+                return 123;
+            }
+        );
+
+        lua.executeFile('script.lua');
         lua.execute('test()'); // cant return function result
         
         trace(lua.call('test', null, true));
