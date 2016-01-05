@@ -16,8 +16,6 @@ extern class Lua {
     @:native('lua_call')
     static function call(l:Lua_State, nargs:Int, nresults:Int) : Void;
 
-    // lua_CFunction : typedef int (*lua_CFunction) (lua_State *L);
-
     @:native('lua_checkstack')
     static function checkstack(l:Lua_State, extra:Int) : Int;
     
@@ -68,8 +66,6 @@ extern class Lua {
 
     @:native('lua_insert')
     static function insert(l:Lua_State, index:Int) : Void;
-
-	// lua_Integer : typedef ptrdiff_t lua_Integer;
 
     @:native('lua_isboolean')
     static function isboolean(l:Lua_State, index:Int) : Int;
@@ -127,8 +123,6 @@ extern class Lua {
 
     @:native('lua_next')
     static function next(l:Lua_State, index:Int) : Int;
-
-	// lua_Number : typedef double lua_Number;
 
     @:native('lua_objlen')
     static function objlen(l:Lua_State, index:Int) : Int;
@@ -287,23 +281,6 @@ extern class Lua {
 
 
 	// lua_Debug
-/*
-	typedef struct lua_Debug {
-	  int event;
-	  const char *name;          
-	  const char *namewhat;      
-	  const char *what;          
-	  const char *source;        
-	  int currentline;           
-	  int nups;                  
-	  int linedefined;           
-	  int lastlinedefined;       
-	  char short_src[LUA_IDSIZE];
-	  other fields
-	} lua_Debug;
-
-*/
-
 
     // @:native('lua_gethook')
     // static function gethook(l:Lua_State) : lua_Hook;
@@ -347,17 +324,17 @@ extern class Lua {
     static function versionJIT() : String;
 
     static inline function init_callbacks(l:Lua_State) : Void {
-        Lua.callbacks_register(l, "_haxe_callback_handler_", cpp.Callable.fromStaticFunction(Lua_helper.callback_handler));
+        Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(Lua_helper.callback_handler));
     }
 
-    @:native('linc::lua::callbacks_register')
-    static function callbacks_register(l:Lua_State, name:String, f:cpp.Callable<Lua_State->String->Int>) : Void;
+    @:native('linc::lua::set_callbacks_function')
+    static function set_callbacks_function(f:cpp.Callable<Lua_State->String->Int>) : Void;
 
-    @:native('linc::lua::add_lua_callback')
-    static function add_lua_callback(l:Lua_State, name:String) : Void;
+    @:native('linc::lua::add_callback_function')
+    static function add_callback_function(l:Lua_State, name:String) : Void;
 
-    @:native('linc::lua::remove_lua_callback')
-    static function remove_lua_callback(l:Lua_State, name:String) : Void;
+    @:native('linc::lua::remove_callback_function')
+    static function remove_callback_function(l:Lua_State, name:String) : Void;
 
     /* thread status */
     public static inline var LUA_OK:Int          = 0;
@@ -388,13 +365,13 @@ class Lua_helper {
 
     public static inline function add_callback(l:Lua_State, fname:String, f:Dynamic):Bool {
         callbacks.set(fname, f);
-        Lua.add_lua_callback(l, fname);
+        Lua.add_callback_function(l, fname);
         return true;
     }
 
     public static inline function remove_callback(l:Lua_State, fname:String):Bool {
         callbacks.remove(fname);
-        Lua.remove_lua_callback(l, fname);
+        Lua.remove_callback_function(l, fname);
         return true;
     }
 
@@ -407,14 +384,14 @@ class Lua_helper {
         }
 
         var nparams:Int = Lua.gettop(l);
-        var args:haxe.ds.Vector<Dynamic> = new haxe.ds.Vector(nparams);
+        var args:Array<Dynamic> = [];
 
         for (i in 0...nparams) {
             args[i] = LuaConvert.lua_to_haxe(l, i + 1);
         }
 
         var ret:Dynamic = null;
-
+        
         switch (nparams) {
             case 0:
                 ret = cbf();
@@ -428,12 +405,8 @@ class Lua_helper {
                 ret = cbf(args[0], args[1], args[2], args[3]);
             case 5:
                 ret = cbf(args[0], args[1], args[2], args[3], args[4]);
-            case 6:
-                ret = cbf(args[0], args[1], args[2], args[3], args[4], args[5]);
-            case 7:
-                ret = cbf(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
             default:
-                throw("> 7 arguments is not supported");
+                throw("> 5 arguments is not supported");
         }
 
         if(ret != null){
@@ -445,16 +418,18 @@ class Lua_helper {
     } //callback_handler
 
 
-    public static inline function stackDump(l:Lua_State){
+    public static function stackDump(l:Lua_State){
         var top:Int = Lua.gettop(l);
         trace("---------------- Stack Dump ----------------");
-        for (i in 1...top) {
-            trace( i + " " + LuaConvert.lua_to_haxe(l, i));
+        // trace("top = " + top);
+        while(top > 0){
+            trace( top + " " + LuaConvert.lua_to_haxe(l, top));
+            top--;
         }
         trace("---------------- Stack Dump Finished ----------------");
     }
-}
 
+}
 
 class LuaConvert {
 
@@ -476,6 +451,7 @@ class LuaConvert {
                 haxe_object_to_lua(l, val); // {}
             case Type.ValueType.TFunction:
                 trace("TFunction");
+                return false;
             default:
                 trace("haxe value not supported\n");
                 return false;
@@ -586,3 +562,22 @@ private extern class Anon {
     public function Add(k:String, v:Dynamic):Void;
 }
 typedef Anon_obj = Anon;
+
+
+/*
+    typedef struct lua_Debug {
+      int event;
+      const char *name;          
+      const char *namewhat;      
+      const char *what;          
+      const char *source;        
+      int currentline;           
+      int nups;                  
+      int linedefined;           
+      int lastlinedefined;       
+      char short_src[LUA_IDSIZE];
+      other fields
+    } lua_Debug;
+
+*/
+

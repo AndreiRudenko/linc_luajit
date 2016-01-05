@@ -39,6 +39,19 @@ class LuaWrapper {
 	public function loadLibs(libs:Array<String>):Void {}
 
 
+	public function setVar(vname:String, v:Dynamic):Void {
+		LuaConvert.haxe_to_lua(vm, v);
+        Lua.setglobal(vm, vname);
+	}
+
+	public function getVar(vname:String):Dynamic {
+		Lua.getglobal(vm, vname);
+		var ret:Dynamic = LuaConvert.lua_to_haxe(vm, -1);
+		if(ret != null) Lua.pop(vm, 1);
+
+		return ret;
+	}
+
 	public function setFunction(fname:String, f:Dynamic):Void {
         Lua.register(vm, fname,f);
 	}
@@ -86,19 +99,17 @@ class LuaWrapper {
 	 * @param path The path of the lua file to run
 	 * @return The result from the lua script in Haxe
 	 */
-	public function executeFile(path:String, retVal:Bool = false):Dynamic {
-		// return lua_execute(vm, path, true);
-		// (luaL_loadfile(L, filename) || lua_pcall(L, 0, LUA_MULTRET, 0))
+	public function doFile(path:String, retVal:Bool = false):Dynamic {
+        var ret:Dynamic = null;
         var oldtop:Int = Lua.gettop(vm);
-
-		if(LuaL.dofile(vm, path) != 0){
+		if(LuaL.dofile(vm, path) != 0){ // (luaL_loadfile(L, filename) || lua_pcall(L, 0, LUA_MULTRET, 0))
 			trace("LUA executeFile error : " + Lua.tostring(vm, -1));
 		} else if(retVal){
-            return LuaConvert.lua_to_haxe(vm, -1);
+            ret = LuaConvert.lua_to_haxe(vm, -1);
 		}
 
         Lua.settop(vm, oldtop);
-		return null;
+		return ret;
 	}
 
 	/**
@@ -106,16 +117,20 @@ class LuaWrapper {
 	 * @param func The lua function name (globals only)
 	 * @param args A single argument or array of arguments
 	 */
+	 
 	public function call(func:String, args:Dynamic, retVal:Bool = false):Dynamic {
 
         var oldtop:Int = Lua.gettop(vm);
+        var hv:Dynamic = null;
 
 		Lua.getglobal(vm, func);
 
         if(args == null){
         	if(Lua.pcall(vm, 0, 1, 0) != 0){
 				trace("LUA call error : " + Lua.tostring(vm, -1));
-        	}
+        	} else if(retVal) {
+				hv = LuaConvert.lua_to_haxe(vm, -1);
+		    }
         } else {
             if(Std.is(args, Array)){
                 var nargs:Int = 0;
@@ -128,29 +143,25 @@ class LuaWrapper {
                 }
                 if(Lua.pcall(vm, nargs, 1, 0) != 0){
 					trace("LUA call error : " + Lua.tostring(vm, -1));
-	        	}
+	        	} else if(retVal) {
+					hv = LuaConvert.lua_to_haxe(vm, -1);
+		        }
             } else {
                 if(LuaConvert.haxe_to_lua(vm, args)){
                 	if(Lua.pcall(vm, 1, 1, 0) != 0){
 						trace("LUA call error : " + Lua.tostring(vm, -1));
+		        	} else if(retVal) {
+						hv = LuaConvert.lua_to_haxe(vm, -1);
 		        	}
                 } else {
-                    // trace('unknown type!');
+                    trace('LUA call error : unknown type of argument !');
                 }
             }
-        }
-
-
-        var hv:Dynamic = null;
-
-        if(retVal){
-            hv = LuaConvert.lua_to_haxe(vm, -1);
         }
 
         Lua.settop(vm, oldtop);
 
         return hv;
-        // return null;
 	}
 
 	/**

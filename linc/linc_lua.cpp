@@ -34,25 +34,21 @@ namespace linc {
             return event_fn(L, ::String(lua_tostring(L, lua_upvalueindex(1))));
         }
 
-        void callbacks_register(lua_State *L, const char *name, luaCallbackFN fn){
+        void set_callbacks_function(luaCallbackFN fn){
             event_fn = fn;
         }
 
-        void add_lua_callback(lua_State *L, const char *name){
-            my_lua_register(L, name, luaCallback);
+        void add_callback_function(lua_State *L, const char *name) {
+            lua_pushstring(L, name);
+            lua_pushcclosure(L, luaCallback, 1);
+            lua_setglobal(L, name);
         }
 
-        void remove_lua_callback(lua_State *L, const char *name){
+        void remove_callback_function(lua_State *L, const char *name){
             lua_pushnil(L);
             lua_setglobal(L, name);
         }
 
-        void my_lua_register(lua_State *L, const char *name, lua_CFunction f) {
-            lua_pushstring(L, name);
-            lua_pushcclosure(L, f, 1);
-            lua_setglobal(L, name);
-        }
-
-    } // lua
+    } //lua
 
 } //linc
