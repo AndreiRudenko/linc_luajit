@@ -1,17 +1,6 @@
-function test()
-	print("calling test() func")
-	return "bla bla"
+function foo(i, f, s) 
+    print("Called foo(), i = "..i..", f = "..f..", s = '"..s.."'\n") 
 end
 
-function test2(a)
-	print("calling test2() func")
-	print(a)
-	return a
-end
-
-
-
-local ret = callBack("test callback", 234.54)
-print(ret)
-
-print("file script.lua loaded!")
+print("file script.lua loaded!\n")
+ 

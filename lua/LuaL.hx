@@ -1,13 +1,11 @@
 package lua;
 
 import lua.Lua;
+import lua.Lua_State;
+import lua.LuaL_Buffer;
 
 @:keep
 @:include('linc_lua.h')
-#if !display
-@:build(linc.Linc.touch())
-@:build(linc.Linc.xml('lua'))
-#end
 extern class LuaL {
 
     @:native('luaL_addchar')
@@ -133,12 +131,6 @@ extern class LuaL {
     @:native('luaL_ref')
     static function ref(b:LuaL_Buffer, t:Int) : Int;
 
-    // luaL_Reg
-    // typedef struct luaL_Reg {
-    //   const char *name;
-    //   lua_CFunction func;
-    // } luaL_Reg;
-
     // @:native('luaL_register')
     // static function register(l:Lua_State, libname:String, lr:luaL_Reg) : Void;
 
@@ -157,5 +149,9 @@ extern class LuaL {
 
 } //LuaL
 
-@:include('linc_lua.h') @:native("::cpp::Reference<LuaL_Buffer>")
-extern class LuaL_Buffer {}
+/*
+typedef struct luaL_Reg {
+    const char *name;
+    lua_CFunction func;
+} luaL_Reg;
+*/
