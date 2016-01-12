@@ -1,10 +1,10 @@
 package lua;
 
-import lua.Lua_State;
+import lua.State;
 
-class Lua_Convert {
+class Convert {
 
-    public static function haxe_to_lua(l:Lua_State, val:Dynamic):Bool {
+    public static function haxe_to_lua(l:State, val:Dynamic):Bool {
         switch (Type.typeof(val)) {
             case Type.ValueType.TNull:
                 Lua.pushnil(l);
@@ -30,7 +30,7 @@ class Lua_Convert {
         return true;
     }
 
-    static inline function haxe_array_to_lua(l:Lua_State, arr:Array<Dynamic>) {
+    static inline function haxe_array_to_lua(l:State, arr:Array<Dynamic>) {
         var size:Int = arr.length;
         Lua.createtable(l, size, 0);
         for (i in 0...size) {
@@ -40,7 +40,7 @@ class Lua_Convert {
         }
     }
 
-    static inline function haxe_object_to_lua(l:Lua_State, res:Dynamic) {
+    static inline function haxe_object_to_lua(l:State, res:Dynamic) {
         Lua.createtable(l, 0, 0);
         for (n in Reflect.fields(res)){
             Lua.pushstring(l, n);
@@ -49,7 +49,7 @@ class Lua_Convert {
         }
     }
 
-    public static inline function lua_to_haxe(l:Lua_State, v:Int) {
+    public static inline function lua_to_haxe(l:State, v:Int) {
         // trace("sq_value_to_haxe\n");
         var ret:Dynamic = null;
 
@@ -66,52 +66,91 @@ class Lua_Convert {
             case Lua.LUA_TTABLE:
                 ret = lua_table_to_haxe(l);
             case Lua.LUA_TFUNCTION:
-                trace("function\n");
+                ret = "function";
+                // trace("function\n");
             case Lua.LUA_TUSERDATA:
-                trace("userdata\n");
+                ret = "userdata";
+                // trace("userdata\n");
             case Lua.LUA_TTHREAD:
-                trace("thread\n");
+                ret = "thread";
+                // trace("thread\n");
             case Lua.LUA_TLIGHTUSERDATA:
-                trace("lightuserdata\n");
+                ret = "lightuserdata";
+                // trace("lightuserdata\n");
             default:
-                trace("return value not supported\n");
+                ret = "return value not supported";
+                // trace("return value not supported\n");
         }
         return ret;
     }
 
-    static inline function lua_table_to_haxe(l:Lua_State):Dynamic {
+    static inline function lua_table_to_haxe(l:State):Dynamic {
         // trace("\nlua_table_to_haxe");
         var array:Bool = true;
         var ret:Dynamic = null;
 
+        var start = haxe.Timer.stamp();
+
         Lua.pushnil(l);
         while(Lua.next(l,-2) != 0) {
+
             if (Lua.type(l, -2) != Lua.LUA_TNUMBER) {
                 array = false;
                 Lua.pop(l,2);
                 break;
             } 
+
+            // check this
+            var n:Float = Lua.tonumber(l, -2);
+            if(n != Std.int(n)){
+                array = false;
+                Lua.pop(l,2);
+                break;
+            }
+            
             Lua.pop(l,1);
         }
-        
+
+        trace('array check took '+ (haxe.Timer.stamp() - start) + ' seconds');
+
+
         if(array){
+
+            var start = haxe.Timer.stamp();
+
             var arr:Array<Dynamic> = [];
             Lua.pushnil(l);
             while(Lua.next(l,-2) != 0) {
                 var index:Int = Lua.tointeger(l, -2) - 1; // lua has 1 based indices instead of 0
-                arr[index] = lua_to_haxe(l, -1);
+                arr[index] = lua_to_haxe(l, -1); // with holes
+                // var v:Dynamic = lua_to_haxe(l, -1);
+                // if(v != null){
+                //     arr.push(v);
+                // }
                 Lua.pop(l,1);
             }
             ret = arr;
+
+
+            trace('array create took '+ (haxe.Timer.stamp() - start) + ' seconds');
+
         } else {
+
+            var start = haxe.Timer.stamp();
+            
             var obj:Anon = Anon.create(); // {}
             Lua.pushnil(l);
             while(Lua.next(l,-2) != 0) {
-                obj.add(Std.string(lua_to_haxe(l, -2)), lua_to_haxe(l, -1));
+                obj.add(Std.string(lua_to_haxe(l, -2)), lua_to_haxe(l, -1)); // works with mixed tables
+                // obj.add(Lua.tostring(l, -2), lua_to_haxe(l, -1));
                 Lua.pop(l,1);
             }
             ret = obj;
+
+
+            trace('table create took '+ (haxe.Timer.stamp() - start) + ' seconds');
         }
+
 
         return ret;
     }
@@ -130,6 +169,3 @@ extern class Anon {
     public function add(k:String, v:Dynamic):Void;
 
 }
-// typedef Anon_obj = cpp.Pointer<Anon>;
-
-// typedef Anon_obj = Anon;

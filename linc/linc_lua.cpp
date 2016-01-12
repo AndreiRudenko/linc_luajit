@@ -26,6 +26,13 @@ namespace linc {
             return ::String(lua_typename(l, v));
         }
 
+        
+        luaL_Buffer* buffinit(lua_State *l){
+            luaL_Buffer bf;
+            luaL_buffinit(l, &bf);
+            return &bf;
+        }
+
         // callbacks
 
         static luaCallbackFN event_fn = 0;

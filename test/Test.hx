@@ -1,11 +1,11 @@
 import lua.Lua;
 import lua.LuaL;
-import lua.Lua_State;
+import lua.State;
 
 class Test {
         
     static function main() {
-        var lua:Lua_State = LuaL.newstate();
+        var lua:State = LuaL.newstate();
         LuaL.openlibs(lua);
         trace("Lua version: " + Lua.version());
         trace("LuaJIT version: " + Lua.versionJIT());
@@ -18,7 +18,7 @@ class Test {
         Lua.pushnumber(lua, 2.0);
         Lua.pushstring(lua, "three");
 
-        Lua.pcall(lua, 3, 0, 0);
+        Lua.pcall(lua, 3, 0, 1);
 
         Lua.close(lua);
     }

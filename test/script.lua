@@ -3,4 +3,3 @@ function foo(i, f, s)
 end
 
 print("file script.lua loaded!\n")
- 

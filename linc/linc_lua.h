@@ -8,7 +8,7 @@
 
 namespace linc {
 
-    typedef ::cpp::Function < int(::cpp::Pointer<lua_State>, ::String) > luaCallbackFN;
+    typedef ::cpp::Function < int(::cpp::Reference<lua_State>, ::String) > luaCallbackFN;
 
     namespace lua {
         extern ::String version();
@@ -16,6 +16,12 @@ namespace linc {
         extern ::String tostring(lua_State *l, int v);
         extern ::String tolstring(lua_State *l, int v, size_t *len);
         extern ::String _typename(lua_State *l, int tp);
+
+        extern luaL_Buffer* buffinit(lua_State *l);
+
+
+
+
         extern void set_callbacks_function(luaCallbackFN fn);
         extern void add_callback_function(lua_State *L, const char *name);
         extern void remove_callback_function(lua_State *L, const char *name);
