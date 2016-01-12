@@ -89,8 +89,6 @@ class Convert {
         var array:Bool = true;
         var ret:Dynamic = null;
 
-        var start = haxe.Timer.stamp();
-
         Lua.pushnil(l);
         while(Lua.next(l,-2) != 0) {
 
@@ -111,12 +109,7 @@ class Convert {
             Lua.pop(l,1);
         }
 
-        trace('array check took '+ (haxe.Timer.stamp() - start) + ' seconds');
-
-
         if(array){
-
-            var start = haxe.Timer.stamp();
 
             var arr:Array<Dynamic> = [];
             Lua.pushnil(l);
@@ -131,12 +124,7 @@ class Convert {
             }
             ret = arr;
 
-
-            trace('array create took '+ (haxe.Timer.stamp() - start) + ' seconds');
-
         } else {
-
-            var start = haxe.Timer.stamp();
             
             var obj:Anon = Anon.create(); // {}
             Lua.pushnil(l);
@@ -147,10 +135,7 @@ class Convert {
             }
             ret = obj;
 
-
-            trace('table create took '+ (haxe.Timer.stamp() - start) + ' seconds');
         }
-
 
         return ret;
     }
