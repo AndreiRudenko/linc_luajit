@@ -3,6 +3,7 @@ package lua;
 import lua.State;
 import lua.Convert;
 
+
 @:keep
 @:include('linc_lua.h')
 #if !display
@@ -13,6 +14,16 @@ extern class Lua {
 
     @:native('lua_upvalueindex')
     static function upvalueindex(i:Int) : Int;
+
+    /* option for multiple returns in `lua_pcall' and `lua_call' */
+    public static inline var LUA_MULTRET:Int = (-1);
+
+
+    /* pseudo-indices */
+
+    public static inline var LUA_REGISTRYINDEX:Int = (-10000);
+    public static inline var LUA_ENVIRONINDEX:Int  = (-10001);
+    public static inline var LUA_GLOBALSINDEX:Int  = (-10002);
 
 
     /* thread status */
@@ -122,11 +133,15 @@ extern class Lua {
     @:native('lua_tointeger')
     static function tointeger(l:State, idx:Int) : Int;
 
+    static inline function toboolean(l:State, idx:Int) : Bool {
+        return _toboolean(l, idx) != 0;
+    }
+
     @:native('lua_toboolean')
-    static function toboolean(l:State, idx:Int) : Int;
+    static function _toboolean(l:State, idx:Int) : Int;
 
     @:native('linc::lua::tolstring')
-    static function tolstring(l:State, idx:Int, len:Int) : String;
+    static function tolstring(l:State, idx:Int, len:UInt) : String;
 
     @:native('lua_objlen')
     static function objlen(l:State, idx:Int) : Int;
@@ -170,8 +185,12 @@ extern class Lua {
     // @:native('lua_pushcclosure')
     // static function pushcclosure(l:State, fn:lua_CFunction n:Int) : Void;
 
+    static inline function pushboolean(l:State, b:Bool) : Void {
+        _pushboolean(l, b == true ? 1 : 0);
+    }
+
     @:native('lua_pushboolean')
-    static function pushboolean(l:State, b:Int) : Void;
+    static function _pushboolean(l:State, b:Int) : Void;
 
     // @:native('lua_pushlightuserdata')
     // static function pushlightuserdata(l:State, p:Void) : Void;
@@ -236,13 +255,13 @@ extern class Lua {
     @:native('lua_pcall')
     static function pcall(l:State, nargs:Int, nresults:Int, errfunc:Int) : Int;
 
-    // @:native('lua_cpcall')
+    // @:native('lua_cpcall') //?
     // static function cpcall(l:State, func:lua_CFunction, ud:Void) : Int;
 
-    // @:native('lua_load')
+    // @:native('lua_load') //?
     // static function load(l:State, reader:lua_Reader, data:Void, chunkname:String) : Int;
 
-    // @:native('lua_dump')
+    // @:native('lua_dump') //?
     // static function dump(l:State, writer:lua_Writer, data:Void) : Int;
 
 
@@ -284,10 +303,10 @@ extern class Lua {
     @:native('lua_concat')
     static function concat(l:State, n:Int) : Void;
 
-    // @:native('lua_getallocf')
+    // @:native('lua_getallocf') //?
     // static function getallocf(l:State, ud:Void) : lua_Alloc;
 
-    // @:native('lua_setallocf')
+    // @:native('lua_setallocf') //?
     // static function setallocf(l:State, f:lua_Alloc, ud:Void) : Void;
 
 
@@ -305,8 +324,8 @@ extern class Lua {
         }
     }
 
-    // @:native('lua_pushcfunction')
-    // static function pushcfunction(l:State, f:Int) : Void;
+    // @:native('lua_pushcfunction') //?
+    // static function pushcfunction(l:State, f:lua_CFunction) : Void;
 
     @:native('lua_strlen')
     static function strlen(l:State, idx:Int) : Int;
@@ -378,16 +397,16 @@ extern class Lua {
 
     /* Functions to be called by the debuger in specific events */
 
-    // @:native('lua_getstack')
-    // static function getstack(l:State, level:Int, ar:lua_Debug) : Int;
+    @:native('linc::lua::getstack') // is it works ?
+    static function getstack(l:State, level:Int, ar:Lua_Debug) : Int; 
 
-    // @:native('lua_getinfo')
-    // static function getinfo(l:State, what:String, ar:lua_Debug) : Int;
+    @:native('linc::lua::getinfo') //  is it works ?
+    static function getinfo(l:State, what:String, ar:Lua_Debug) : Int;
 
-    // @:native('lua_getlocal')
-    // static function getlocal(l:State, ar:lua_Debug, n:Int) : String;
+    // @:native('linc::lua::getlocal') // TODO
+    // static function getlocal(l:State, ar:Lua_Debug, n:Int) : String;
 
-    // @:native('lua_setlocal')
+    // @:native('lua_setlocal') // TODO
     // static function setlocal (l:State, ar:lua_Debug, n:Int) : String;
 
     @:native('lua_getupvalue')
@@ -430,6 +449,7 @@ extern class Lua {
 
     /* unofficial API helpers */
 
+
     @:native('linc::lua::version')
     static function version() : String;
 
@@ -440,19 +460,40 @@ extern class Lua {
         Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(Lua_helper.callback_handler));
     }
 
-    @:native('linc::lua::set_callbacks_function')
+    @:native('linc::callbacks::set_callbacks_function')
     static function set_callbacks_function(f:cpp.Callable<State->String->Int>) : Void;
 
-    @:native('linc::lua::add_callback_function')
+    @:native('linc::callbacks::add_callback_function')
     static function add_callback_function(l:State, name:String) : Void;
 
-    @:native('linc::lua::remove_callback_function')
+    @:native('linc::callbacks::remove_callback_function')
     static function remove_callback_function(l:State, name:String) : Void;
+
+    @:native('linc::helpers::register_hxtrace_lib')
+    static function register_hxtrace_lib(l:State) : Void;
+
+    @:native('linc::helpers::register_hxtrace_func')
+    static function register_hxtrace_func(f:cpp.Callable<String->Int>) : Void;
 
 } //Lua
 
 
 class Lua_helper {
+
+    static inline function print_function(s:String) : Int { // you can use custom
+        // trace("\nLUA: " + s);
+        Lua_helper.trace(s);
+        return 0;
+    }
+
+    public static inline function register_hxtrace(l:State) : Void {
+        Lua.register_hxtrace_func(cpp.Callable.fromStaticFunction(print_function));
+        Lua.register_hxtrace_lib(l);
+    }
+
+    public static dynamic function trace(s:String, ?inf:haxe.PosInfos):Void {
+        trace(s);
+    }
 
     public static var callbacks:Map<String, Dynamic> = new Map();
 
@@ -480,7 +521,7 @@ class Lua_helper {
         var args:Array<Dynamic> = [];
 
         for (i in 0...nparams) {
-            args[i] = Convert.lua_to_haxe(l, i + 1);
+            args[i] = Convert.fromLua(l, i + 1);
         }
 
         var ret:Dynamic = null;
@@ -503,31 +544,26 @@ class Lua_helper {
         }
 
         if(ret != null){
-            Convert.haxe_to_lua(l, ret);
+            Convert.toLua(l, ret);
         }
 
         /* return the number of results */
         return 1;
     } //callback_handler
 
+}
 
-    static inline function stackDump(l:State, msg:String = ""):Void{
-        var top:Int = Lua.gettop(l);
+typedef Lua_Debug = {
+    @:optional var event:Int;
+    @:optional var name:String;             // (n)
+    @:optional var namewhat:String;         // (n) `global', `local', `field', `method'
+    @:optional var what:String;             // (S) `Lua', `C', `main', `tail'
+    @:optional var source:String;           // (S)
+    @:optional var currentline:Int;         // (l)
+    @:optional var nups:Int;                // (u) number of upvalues
+    @:optional var linedefined:Int;         // (S)
+    @:optional var lastlinedefined:Int;     // (S)
+    @:optional var short_src:Array<String>; // (S)
 
-        trace('---------------- Stack Dump : "'  + msg +  '" ----------------');
-
-        if(top > 0){
-            trace("stacksize: " + top);
-            var i:Int = -(top + 1);
-            while(top > 0){
-                var v:Dynamic = Convert.lua_to_haxe(l, top);
-                // trace( top + " | " + (i + top) + ") " + v );
-                trace( (i + top) + ") " + v );
-                top--;
-            }
-        }
-
-        trace('---------------- Stack Dump : "'  + msg +  '" Finished ----------------');
-    }
-
+    @:optional var i_ci:Int;       // private
 }

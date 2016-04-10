@@ -4,7 +4,10 @@ import lua.State;
 
 class Convert {
 
-    public static function haxe_to_lua(l:State, val:Dynamic):Bool {
+    /**
+     * To Lua
+     */
+    public static function toLua(l:State, val:Dynamic):Bool {
         switch (Type.typeof(val)) {
             case Type.ValueType.TNull:
                 Lua.pushnil(l);
@@ -17,9 +20,9 @@ class Convert {
             case Type.ValueType.TClass(String):
                 Lua.pushstring(l, cast(val, String));
             case Type.ValueType.TClass(Array):
-                haxe_array_to_lua(l, val);
+                arrayToLua(l, val);
             case Type.ValueType.TObject:
-                haxe_object_to_lua(l, val); // {}
+                objectToLua(l, val); // {}
             case Type.ValueType.TFunction:
                 trace("TFunction");
                 return false;
@@ -30,41 +33,44 @@ class Convert {
         return true;
     }
 
-    static inline function haxe_array_to_lua(l:State, arr:Array<Dynamic>) {
+    public static inline function arrayToLua(l:State, arr:Array<Dynamic>) {
         var size:Int = arr.length;
         Lua.createtable(l, size, 0);
         for (i in 0...size) {
             Lua.pushnumber(l, i + 1);
-            haxe_to_lua(l, arr[i]);
+            toLua(l, arr[i]);
             Lua.settable(l, -3);
         }
     }
 
-    static inline function haxe_object_to_lua(l:State, res:Dynamic) {
-        Lua.createtable(l, 0, 0);
+    static inline function objectToLua(l:State, res:Dynamic) {
+        Lua.createtable(l, 0, 0); // TODO: определить размер таблицы
         for (n in Reflect.fields(res)){
             Lua.pushstring(l, n);
-            haxe_to_lua(l, Reflect.field(res, n));
+            toLua(l, Reflect.field(res, n));
             Lua.settable(l, -3);
         }
     }
 
-    public static inline function lua_to_haxe(l:State, v:Int) {
-        // trace("sq_value_to_haxe\n");
+    /**
+     * From Lua
+     */
+    public static inline function fromLua(l:State, v:Int) {
+        // trace("\nlua_to_haxe");
         var ret:Dynamic = null;
 
         switch(Lua.type(l, v)) {
             case Lua.LUA_TNIL:
                 ret = null;
             case Lua.LUA_TBOOLEAN:
-                ret = Lua.toboolean(l, v) == 0 ? false : true;
+                // ret = Lua.toboolean(l, v) != 0;
+                ret = Lua.toboolean(l, v);
             case Lua.LUA_TNUMBER:
-                var n:Float = Lua.tonumber(l, v);
-                ret = (n % 1) == 0 ? Std.int(n) : n;
+                ret = Lua.tonumber(l, v);
             case Lua.LUA_TSTRING:
                 ret = Lua.tostring(l, v);
             case Lua.LUA_TTABLE:
-                ret = lua_table_to_haxe(l);
+                ret = fromLuaTable(l);
             case Lua.LUA_TFUNCTION:
                 ret = "function";
                 // trace("function\n");
@@ -79,12 +85,12 @@ class Convert {
                 // trace("lightuserdata\n");
             default:
                 ret = "return value not supported";
-                // trace("return value not supported\n");
+                trace("return value not supported\n");
         }
         return ret;
     }
 
-    static inline function lua_table_to_haxe(l:State):Dynamic {
+    static inline function fromLuaTable(l:State):Dynamic {
         // trace("\nlua_table_to_haxe");
         var array:Bool = true;
         var ret:Dynamic = null;
@@ -115,11 +121,7 @@ class Convert {
             Lua.pushnil(l);
             while(Lua.next(l,-2) != 0) {
                 var index:Int = Lua.tointeger(l, -2) - 1; // lua has 1 based indices instead of 0
-                arr[index] = lua_to_haxe(l, -1); // with holes
-                // var v:Dynamic = lua_to_haxe(l, -1);
-                // if(v != null){
-                //     arr.push(v);
-                // }
+                arr[index] = fromLua(l, -1); // with holes
                 Lua.pop(l,1);
             }
             ret = arr;
@@ -129,8 +131,7 @@ class Convert {
             var obj:Anon = Anon.create(); // {}
             Lua.pushnil(l);
             while(Lua.next(l,-2) != 0) {
-                obj.add(Std.string(lua_to_haxe(l, -2)), lua_to_haxe(l, -1)); // works with mixed tables
-                // obj.add(Lua.tostring(l, -2), lua_to_haxe(l, -1));
+                obj.add(Std.string(fromLua(l, -2)), fromLua(l, -1)); // works with mixed tables
                 Lua.pop(l,1);
             }
             ret = obj;

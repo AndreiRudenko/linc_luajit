@@ -3,6 +3,9 @@ package lua;
 import lua.State;
 import lua.Buffer;
 
+import cpp.ConstPointer;
+import cpp.Pointer;
+
 @:include('linc_lua.h')
 extern class LuaL {
 
@@ -22,11 +25,11 @@ extern class LuaL {
     @:native('luaL_argerror')
     static function argerror(l:State, narg:Int, extramsg:String) : Int;
 
-    @:native('luaL_checklstring') // TODO
-    static function checklstring(l:State, narg:Int, l:Int) : String;
+    @:native('linc::lual::checklstring')
+    static function checklstring(l:State, narg:Int, l:UInt) : String;
 
-    @:native('luaL_optlstring') // TODO
-    static function optlstring(l:State, narg:Int, d:String, l:Int) : String;
+    @:native('linc::lual::optlstring')
+    static function optlstring(l:State, narg:Int, d:String, l:UInt) : String;
 
     @:native('luaL_checknumber')
     static function checknumber(l:State, narg:Int) : Float;
@@ -106,7 +109,6 @@ extern class LuaL {
     @:native('luaL_traceback')
     static function traceback(l:State, l2:State, msg:String, level:Int) : Void;
 
-
     /*
     ** ===============================================================
     ** some useful macros
@@ -154,34 +156,32 @@ extern class LuaL {
     */
 
     @:native('luaL_addchar')
-    static function addchar(b:Buffer, c:String) : Void;
-
+    static function addchar(b:BufferRef, c:String) : Void;
 
     /* compatibility only */
     @:native('luaL_putchar')
-    static function putchar(b:Buffer, c:String) : Void;
+    static function putchar(b:BufferRef, c:String) : Void;
 
     @:native('luaL_addsize')
-    static function addsize(b:Buffer, n:Int) : Void;
+    static function addsize(b:BufferRef, n:Int) : Void;
 
+    @:native('luaL_buffinit')
+    static function buffinit(l:State, b:BufferRef) : Void; // example: var b:Buffer = null; LuaL.buffinit(l, cast b);
 
-    @:native('linc::lua::buffinit')
-    static function buffinit(l:State) : Buffer;
-
-    @:native('luaL_prepbuffer') // TODO
-    static function prepbuffer(b:Buffer) : String;
+    @:native('linc::lual::prepbuffer')
+    static function prepbuffer(b:BufferRef) : String;
 
     @:native('luaL_addlstring')
-    static function addlstring(b:Buffer, s:String, l:Int) : Void;
+    static function addlstring(b:BufferRef, s:String, l:Int) : Void;
 
     @:native('luaL_addstring')
-    static function addstring(b:Buffer, s:String) : Void;
+    static function addstring(b:BufferRef, s:String) : Void;
 
     @:native('luaL_addvalue')
-    static function addvalue(b:Buffer) : Void;
+    static function addvalue(b:BufferRef) : Void;
 
     @:native('luaL_pushresult')
-    static function pushresult(b:Buffer) : Void;
+    static function pushresult(b:BufferRef) : Void;
 
 
 
