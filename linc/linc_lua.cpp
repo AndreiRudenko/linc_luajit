@@ -136,24 +136,36 @@ namespace linc {
 
         static HxTraceFN print_fn = 0;
         static int hx_trace(lua_State* L) {
-            int nargs = lua_gettop(L);
-
             std::stringstream buffer;
-            // buffer << "in my_print:";
-            for (int i=1; i <= nargs; ++i) {
-                if (lua_isnil(L, i)){
-                    buffer << "nil";
-                } else {
-                    buffer << lua_tostring(L, i);
+            int n = lua_gettop(L);  /* number of arguments */
+            
+            lua_getglobal(L,"tostring");
+            
+            for ( int i = 1;  i <= n;  ++i ){
+                const char* s = NULL;
+                size_t      l = 0;
+
+                lua_pushvalue(L,-1);    /* function to be called */
+                lua_pushvalue(L,i); /* value to print */
+                lua_call(L,1,1);
+
+                s = lua_tolstring(L,-1, &l); /* get result */
+                if ( s == NULL ){
+                    return luaL_error(L,LUA_QL("tostring") " must return a string to " LUA_QL("print"));
                 }
+                
+                if ( i>1 ){
+                    buffer << "\t";
+                }
+
+                buffer << s;
+
+                lua_pop(L,1);   /* pop result */
             }
-            buffer << std::endl;
 
-            // c++ print 
-            // std::cout << buffer.str();
-            // std::string s = buffer.str();
-            print_fn(::String(buffer.str().c_str()));
-
+            // std::cout << buffer.str(); // c++ out
+            print_fn(::String(buffer.str().c_str())); // hx out
+            
             return 0;
         }
 
