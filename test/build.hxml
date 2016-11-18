@@ -1,3 +1,4 @@
+-lib linc_luajit
 -main Test.hx
 -cpp cpp/
 -cp ../
