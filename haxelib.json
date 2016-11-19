@@ -1,0 +1,10 @@
+{
+	"name": "linc_luajit",
+	"url": "https://github.com/RudenkoArts/linc_luajit",
+	"license": "MIT",
+	"tags": ["lua","luajit","linc","bindings"],
+	"description": "Haxe/hxcpp @:native bindings for LuaJIT.",
+	"version": "0.0.1",
+	"releasenote": "",
+	"contributors": ["RudenkoArts"]
+}

@@ -1,6 +1,8 @@
 package lua;
 
+
 import lua.State;
+
 
 class Convert {
 
@@ -8,6 +10,7 @@ class Convert {
      * To Lua
      */
     public static function toLua(l:State, val:Dynamic):Bool {
+
         switch (Type.typeof(val)) {
             case Type.ValueType.TNull:
                 Lua.pushnil(l);
@@ -23,40 +26,47 @@ class Convert {
                 arrayToLua(l, val);
             case Type.ValueType.TObject:
                 objectToLua(l, val); // {}
-            case Type.ValueType.TFunction:
-                trace("TFunction");
-                return false;
+            // case Type.ValueType.TFunction:
+            //     trace("TFunction");
+            //     return false;
             default:
                 trace("haxe value not supported\n");
                 return false;
         }
+
         return true;
+
     }
 
     public static inline function arrayToLua(l:State, arr:Array<Dynamic>) {
+
         var size:Int = arr.length;
         Lua.createtable(l, size, 0);
+
         for (i in 0...size) {
             Lua.pushnumber(l, i + 1);
             toLua(l, arr[i]);
             Lua.settable(l, -3);
         }
+
     }
 
     static inline function objectToLua(l:State, res:Dynamic) {
-        Lua.createtable(l, 0, 0); // TODO: определить размер таблицы
+
+        Lua.createtable(l, 0, 0); // TODO: find table length ?
         for (n in Reflect.fields(res)){
             Lua.pushstring(l, n);
             toLua(l, Reflect.field(res, n));
             Lua.settable(l, -3);
         }
+
     }
 
     /**
      * From Lua
      */
     public static inline function fromLua(l:State, v:Int) {
-        // trace("\nlua_to_haxe");
+
         var ret:Dynamic = null;
 
         switch(Lua.type(l, v)) {
@@ -71,27 +81,25 @@ class Convert {
                 ret = Lua.tostring(l, v);
             case Lua.LUA_TTABLE:
                 ret = fromLuaTable(l);
-            case Lua.LUA_TFUNCTION:
-                ret = "function";
-                // trace("function\n");
-            case Lua.LUA_TUSERDATA:
-                ret = "userdata";
-                // trace("userdata\n");
-            case Lua.LUA_TTHREAD:
-                ret = "thread";
-                // trace("thread\n");
-            case Lua.LUA_TLIGHTUSERDATA:
-                ret = "lightuserdata";
-                // trace("lightuserdata\n");
+            // case Lua.LUA_TFUNCTION:
+            //     ret = "function";
+            // case Lua.LUA_TUSERDATA:
+            //     ret = "userdata";
+            // case Lua.LUA_TTHREAD:
+            //     ret = "thread";
+            // case Lua.LUA_TLIGHTUSERDATA:
+            //     ret = "lightuserdata";
             default:
-                ret = "return value not supported";
+                ret = null;
                 trace("return value not supported\n");
         }
+
         return ret;
+
     }
 
     static inline function fromLuaTable(l:State):Dynamic {
-        // trace("\nlua_table_to_haxe");
+
         var array:Bool = true;
         var ret:Dynamic = null;
 
@@ -113,6 +121,7 @@ class Convert {
             }
             
             Lua.pop(l,1);
+            
         }
 
         if(array){
@@ -139,9 +148,11 @@ class Convert {
         }
 
         return ret;
+
     }
     
 }
+
 
 // Anon_obj from hxcpp
 @:include('hxcpp.h')

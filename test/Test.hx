@@ -2,9 +2,12 @@ import lua.Lua;
 import lua.LuaL;
 import lua.State;
 
+
 class Test {
         
+
     static function main() {
+
         var lua:State = LuaL.newstate();
         LuaL.openlibs(lua);
         trace("Lua version: " + Lua.version());
@@ -21,6 +24,8 @@ class Test {
         Lua.pcall(lua, 3, 0, 1);
 
         Lua.close(lua);
+
     }
+
 
 }

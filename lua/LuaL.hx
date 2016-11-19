@@ -1,10 +1,12 @@
 package lua;
 
+
 import lua.State;
 import lua.Buffer;
 
 import cpp.ConstPointer;
 import cpp.Pointer;
+
 
 @:include('linc_lua.h')
 extern class LuaL {
@@ -199,10 +201,3 @@ extern class LuaL {
     static function openlibs(l:State) : Void;
 
 } //LuaL
-
-/*
-typedef struct luaL_Reg {
-  const char *name;
-  lua_CFunction func;
-} luaL_Reg;
-*/

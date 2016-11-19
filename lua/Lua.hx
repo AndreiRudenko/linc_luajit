@@ -1,5 +1,6 @@
 package lua;
 
+
 import lua.State;
 import lua.Convert;
 
@@ -186,7 +187,9 @@ extern class Lua {
     // static function pushcclosure(l:State, fn:lua_CFunction n:Int) : Void;
 
     static inline function pushboolean(l:State, b:Bool) : Void {
+        
         _pushboolean(l, b == true ? 1 : 0);
+
     }
 
     @:native('lua_pushboolean')
@@ -319,9 +322,11 @@ extern class Lua {
     static function newtable(l:State) : Void;
 
     static inline function register(l:State, name:String, f:Dynamic) : Void {
+
         if(Type.typeof(f) == Type.ValueType.TFunction && !Lua_helper.callbacks.exists(name)){
             Lua_helper.add_callback(l, name, f);
         }
+
     }
 
     // @:native('lua_pushcfunction') //?
@@ -457,7 +462,9 @@ extern class Lua {
     static function versionJIT() : String;
 
     static inline function init_callbacks(l:State) : Void {
+
         Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(Lua_helper.callback_handler));
+
     }
 
     @:native('linc::callbacks::set_callbacks_function')
@@ -481,32 +488,42 @@ extern class Lua {
 class Lua_helper {
 
     static inline function print_function(s:String) : Int { // you can use custom
+
         // trace("\nLUA: " + s);
         Lua_helper.trace(s);
         return 0;
+
     }
 
     public static inline function register_hxtrace(l:State) : Void {
+
         Lua.register_hxtrace_func(cpp.Callable.fromStaticFunction(print_function));
         Lua.register_hxtrace_lib(l);
+
     }
 
     public static dynamic function trace(s:String, ?inf:haxe.PosInfos):Void {
+
         trace(s);
+
     }
 
     public static var callbacks:Map<String, Dynamic> = new Map();
 
     public static inline function add_callback(l:State, fname:String, f:Dynamic):Bool {
+
         callbacks.set(fname, f);
         Lua.add_callback_function(l, fname);
         return true;
+
     }
 
     public static inline function remove_callback(l:State, fname:String):Bool {
+
         callbacks.remove(fname);
         Lua.remove_callback_function(l, fname);
         return true;
+
     }
 
     public static inline function callback_handler(l:State, fname:String):Int {
@@ -554,6 +571,7 @@ class Lua_helper {
 }
 
 typedef Lua_Debug = {
+
     @:optional var event:Int;
     @:optional var name:String;             // (n)
     @:optional var namewhat:String;         // (n) `global', `local', `field', `method'
@@ -566,4 +584,5 @@ typedef Lua_Debug = {
     @:optional var short_src:Array<String>; // (S)
 
     @:optional var i_ci:Int;       // private
+
 }
