@@ -1,11 +1,11 @@
-package lua;
+package llua;
 
 
-import lua.State;
-import lua.Buffer;
+import llua.State;
+import llua.Buffer;
 
-import cpp.ConstPointer;
-import cpp.Pointer;
+// import cpp.ConstPointer;
+// import cpp.Pointer;
 
 
 @:include('linc_lua.h')

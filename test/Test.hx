@@ -1,6 +1,6 @@
-import lua.Lua;
-import lua.LuaL;
-import lua.State;
+import llua.Lua;
+import llua.LuaL;
+import llua.State;
 
 
 class Test {

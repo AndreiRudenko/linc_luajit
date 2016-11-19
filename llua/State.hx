@@ -1,4 +1,4 @@
-package lua;
+package llua;
 
 
 @:native('::cpp::Reference<lua_State>')

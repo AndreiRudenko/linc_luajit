@@ -17,9 +17,9 @@ Be sure to read the Lua documentation
 www.lua.org/manual/5.1/manual.html  
 
 ```haxe
-import lua.Lua;
-import lua.LuaL;
-import lua.State;
+import llua.Lua;
+import llua.LuaL;
+import llua.State;
 
 class Test {
         

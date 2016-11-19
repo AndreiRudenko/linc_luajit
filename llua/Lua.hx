@@ -1,8 +1,8 @@
-package lua;
+package llua;
 
 
-import lua.State;
-import lua.Convert;
+import llua.State;
+import llua.Convert;
 
 
 @:keep

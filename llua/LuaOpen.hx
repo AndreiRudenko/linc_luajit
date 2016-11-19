@@ -1,7 +1,7 @@
-package lua;
+package llua;
 
 
-import lua.State;
+import llua.State;
 
 
 @:include('linc_lua.h')
