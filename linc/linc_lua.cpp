@@ -1,7 +1,6 @@
-
+#include <hxcpp.h>
 
 #include "./linc_lua.h"
-#include <hxcpp.h>
 #include "../lib/lua/src/lua.hpp"
 
 
@@ -126,6 +125,36 @@ namespace linc {
         ::String prepbuffer(luaL_Buffer *B){
 
             return ::String(luaL_prepbuffer(B));
+
+        }
+
+        ::String gsub(lua_State *l, const char *s, const char *p, const char *r){
+
+            return ::String(luaL_gsub(l, s, p, r));
+
+        }
+
+        ::String findtable(lua_State *L, int idx, const char *fname, int szhint){
+
+            return ::String(luaL_findtable(L, idx, fname, szhint));
+
+        }
+
+        ::String checkstring(lua_State *L, int n){
+
+            return ::String(luaL_checkstring(L, n));
+
+        }
+
+        ::String optstring(lua_State *L, int n, const char *d){
+
+            return ::String(luaL_optstring(L, n, d));
+
+        }
+
+        ::String ltypename(lua_State *L, int idx){
+
+            return ::String(luaL_typename(L, idx));
 
         }
 

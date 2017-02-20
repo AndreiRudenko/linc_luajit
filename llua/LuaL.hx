@@ -4,9 +4,6 @@ package llua;
 import llua.State;
 import llua.Buffer;
 
-// import cpp.ConstPointer;
-// import cpp.Pointer;
-
 
 @:include('linc_lua.h')
 extern class LuaL {
@@ -70,7 +67,7 @@ extern class LuaL {
     static function checkoption(l:State, narg:Int, def:String, const:Array<String>) : Int;
 
     @:native('luaL_ref')
-    static function ref(b:Buffer, t:Int) : Int;
+    static function ref(l:State, t:Int) : Int;
 
     @:native('luaL_unref')
     static function unref(l:State, t:Int, ref:Int) : Void;
@@ -87,10 +84,10 @@ extern class LuaL {
     @:native('luaL_newstate')
     static function newstate() : State;
 
-    @:native('luaL_gsub') // TODO
+    @:native('linc::lual::gsub')
     static function gsub(l:State, s:String, p:String, r:String) : String;
 
-    @:native('luaL_findtable') // TODO
+    @:native('linc::lual::findtable')
     static function findtable(l:State, idx:Int, fname:String, szhint:Int) : String;
 
 
@@ -120,10 +117,10 @@ extern class LuaL {
     @:native('luaL_argcheck')
     static function argcheck(l:State, cond:Int, narg:Int, extramsg:String) : Void;
 
-    @:native('luaL_checkstring') // TODO
+    @:native('linc::lual::checkstring')
     static function checkstring(l:State, narg:Int) : String;
 
-    @:native('luaL_optstring') // TODO
+    @:native('linc::lual::optstring')
     static function optstring(l:State, narg:Int, d:String) : String;
 
     @:native('luaL_checkint')
@@ -138,7 +135,7 @@ extern class LuaL {
     @:native('luaL_optlong')
     static function optlong(l:State, narg:Int, d:Float) : Float;
 
-    @:native('luaL_typename') // TODO
+    @:native('linc::lual::ltypename')
     static function typename(l:State, index:Int) : String;
 
     @:native('luaL_dofile')
