@@ -101,17 +101,37 @@ extern class Lua {
 
 	/* access functions (stack -> C) */
 
+	@:noCompletion
 	@:native('lua_isnumber')
-	static function isnumber(l:State, idx:Int) : Int;
+	static function _isnumber(l:State, idx:Int) : Int;
 
+	static inline function isnumber(l:State, idx:Int) : Bool {
+		return _isnumber(l, idx) != 0;
+	}
+
+	@:noCompletion
 	@:native('lua_isstring')
-	static function isstring(l:State, idx:Int) : Int;
+	static function _isstring(l:State, idx:Int) : Int;
 
+	static inline function isstring(l:State, idx:Int) : Bool {
+		return _isstring(l, idx) != 0;
+	}
+
+	@:noCompletion
 	@:native('lua_iscfunction')
-	static function iscfunction(l:State, idx:Int) : Int;
+	static function _iscfunction(l:State, idx:Int) : Int;
 
+	static inline function iscfunction(l:State, idx:Int) : Bool {
+		return _iscfunction(l, idx) != 0;
+	}
+
+	@:noCompletion
 	@:native('lua_isuserdata')
-	static function isuserdata(l:State, idx:Int) : Int;
+	static function _isuserdata(l:State, idx:Int) : Int;
+
+	static inline function isuserdata(l:State, idx:Int) : Bool {
+		return _isuserdata(l, idx) != 0;
+	}
 
 	@:native('lua_type')
 	static function type(l:State, idx:Int) : Int;
@@ -134,12 +154,13 @@ extern class Lua {
 	@:native('lua_tointeger')
 	static function tointeger(l:State, idx:Int) : Int;
 
+	@:noCompletion
+	@:native('lua_toboolean')
+	static function _toboolean(l:State, idx:Int) : Int;
+
 	static inline function toboolean(l:State, idx:Int) : Bool {
 		return _toboolean(l, idx) != 0;
 	}
-
-	@:native('lua_toboolean')
-	static function _toboolean(l:State, idx:Int) : Int;
 
 	@:native('linc::lua::tolstring')
 	static function tolstring(l:State, idx:Int, len:UInt) : String;
@@ -186,14 +207,14 @@ extern class Lua {
 	// @:native('lua_pushcclosure')
 	// static function pushcclosure(l:State, fn:lua_CFunction n:Int) : Void;
 
-	static inline function pushboolean(l:State, b:Bool) : Void {
-		
-		_pushboolean(l, b == true ? 1 : 0);
 
-	}
-
+	@:noCompletion
 	@:native('lua_pushboolean')
 	static function _pushboolean(l:State, b:Int) : Void;
+
+	static inline function pushboolean(l:State, b:Bool) : Void {
+		_pushboolean(l, b == true ? 1 : 0);
+	}
 
 	// @:native('lua_pushlightuserdata')
 	// static function pushlightuserdata(l:State, p:Void) : Void;
