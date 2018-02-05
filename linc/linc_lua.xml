@@ -16,6 +16,16 @@
             <lib name='${LINC_LUA_PATH}lib/Lua/lib/Windows64/lua51.lib' if='HXCPP_M64' />
             <lib name='${LINC_LUA_PATH}lib/Lua/lib/Windows/lua51.lib' if='HXCPP_M32' />
         </section>
+        <section if="linux">
+            <section if='LINC_LUA_RELATIVE_DYNAMIC_LIB'>
+                <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Linux64/libluajit.so' if='HXCPP_M64' />
+                <!-- <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Linux/libluajit.so' if='HXCPP_M32' /> -->
+                <vflag name='-Wl,-rpath=$ORIGIN' value='' unless='LINC_LUA_LINUX_NO_RPATH_ORIGIN' />
+            </section>
+            <section unless='LINC_LUA_RELATIVE_DYNAMIC_LIB'>
+                <lib name='-lluajit-5.1' />
+            </section>
+</section>
     </target>
 
 </xml>

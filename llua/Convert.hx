@@ -26,9 +26,8 @@ class Convert {
 				arrayToLua(l, val);
 			case Type.ValueType.TObject:
 				objectToLua(l, val); // {}
-			// case Type.ValueType.TFunction:
-			//     trace("TFunction");
-			//     return false;
+           // case Type.ValueType.TFunction:
+           //     Lua.pushcfunction(l, val);
 			default:
 				trace("haxe value not supported\n");
 				return false;
@@ -158,7 +157,7 @@ class Convert {
 
 
 // Anon_obj from hxcpp
-@:include('hxcpp.h')
+//@:include('hxcpp.h')
 @:native('hx::Anon')
 extern class Anon {
 
