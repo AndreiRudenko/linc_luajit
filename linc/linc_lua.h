@@ -7,7 +7,7 @@
 #include <sstream>
 #include <iostream>
 
-#include "../lib/lua/src/lua.hpp"
+#include "../lib/Lua/src/lua.hpp"
 
 
 namespace linc {
