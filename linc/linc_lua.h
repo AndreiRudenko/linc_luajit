@@ -2,7 +2,9 @@
 #define _LINC_LUA_H_
 
 
-#include <hxcpp.h>
+#ifndef HXCPP_H
+    #include <hxcpp.h>
+#endif
 
 #include <sstream>
 #include <iostream>
