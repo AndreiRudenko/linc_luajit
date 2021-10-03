@@ -19,7 +19,11 @@
         <section if="linux">
             <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Linux64/libluajit.so' if='HXCPP_M64' />
             <!-- <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Linux/libluajit.so' if='HXCPP_M32' /> -->
-</section>
+        </section>
+        <section if="mac">
+            <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M64' />
+            <!-- <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M32' /> -->
+        </section>
     </target>
 
 </xml>
