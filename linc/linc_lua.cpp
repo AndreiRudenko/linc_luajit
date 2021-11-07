@@ -1,10 +1,8 @@
-#ifndef HXCPP_H
-  #include <hxcpp.h>
-#endif
+#include <hxcpp.h>
+#include <hx/CFFI.h>
 
 #include "./linc_lua.h"
-#include "../lib/Lua/src/lua.hpp"
-
+#include "../lib/lua/src/lua.hpp"
 
 namespace linc {
 

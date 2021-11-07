@@ -1,16 +1,12 @@
-#ifndef _LINC_LUA_H_
-#define _LINC_LUA_H_
+#pragma once
 
-
-#ifndef HXCPP_H
-    #include <hxcpp.h>
-#endif
+#include <hxcpp.h>
+#include <hx/CFFI.h>
 
 #include <sstream>
 #include <iostream>
 
-#include "../lib/Lua/src/lua.hpp"
-
+#include "../lib/lua/src/lua.hpp"
 
 namespace linc {
 
@@ -62,5 +58,3 @@ namespace linc {
 
 
 } //linc
-
-#endif //_LINC_LUA_H_
