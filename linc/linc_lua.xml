@@ -25,9 +25,9 @@
             <!-- <lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M32' /> -->
         </section>
         <section if="android">
-            <lib name='${LINC_LUA_PATH}lib/lua/Android/libluajit-v7.so' if='HXCPP_ARMV7' />
-            <lib name='${LINC_LUA_PATH}lib/lua/Android/libluajit-x86.so' if='HXCPP_X86' />
-            <lib name='${LINC_LUA_PATH}lib/lua/Android/libluajit-64.so' if='HXCPP_ARM64' />
+            <lib name='${LINC_LUA_PATH}ndll/Android/libluajit-v7.so' if='HXCPP_ARMV7' />
+            <lib name='${LINC_LUA_PATH}ndll/Android/libluajit-x86.so' if='HXCPP_X86' />
+            <lib name='${LINC_LUA_PATH}ndll/Android/libluajit-64.so' if='HXCPP_ARM64' />
         </section>
     </target>
 
