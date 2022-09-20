@@ -3,8 +3,8 @@
     <files id='haxe'>
 
         <compilerflag value='-I${LINC_LUA_PATH}/linc/'/>
-        <file name='${LINC_LUA_PATH}linc/linc_lua.cpp' />
-
+        <file name='${LINC_LUA_PATH}/linc/linc_lua.cpp' if="android"/> <!-- it's don't want to compile for android without that '/' for some reason -->
+        <file name='${LINC_LUA_PATH}linc/linc_lua.cpp' unless="android"/>
     </files>
 
     <files id="__main__">
@@ -25,9 +25,20 @@
             <!-- <lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M32' /> -->
         </section>
         <section if="android">
-            <lib name='${LINC_LUA_PATH}/lib/lua/Android/libluajit-v7.so' if='HXCPP_ARMV7' />
-            <lib name='${LINC_LUA_PATH}/lib/lua/Android/libluajit-x86.so' if='HXCPP_X86' />
-            <lib name='${LINC_LUA_PATH}/lib/lua/Android/libluajit-64.so' if='HXCPP_ARM64' />
+            <section unless="luajit_static">
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-v7.so' if='HXCPP_ARMV7' />
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86.so' if='HXCPP_X86' />
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86_64.so' if='HXCPP_X86_64' />
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-64.so' if='HXCPP_ARM64' />
+            </section>
+        </section>
+        <section if="android">
+            <section if="luajit_static">
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-v7.a' if='HXCPP_ARMV7' />
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86.a' if='HXCPP_X86' />
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86_64.a' if='HXCPP_X86_64' />
+                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-64.a' if='HXCPP_ARM64' />
+            </section>
         </section>
     </target>
 
