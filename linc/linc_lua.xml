@@ -1,45 +1,36 @@
 <xml>
+	<files id='haxe'>
+		<compilerflag name="-I" value='${LINC_LUA_PATH}linc/' if="windows" />
+		<compilerflag name="-I" value='${LINC_LUA_PATH}/linc/' unless="windows" />
 
-    <files id='haxe'>
+		<file name='${LINC_LUA_PATH}linc/linc_lua.cpp' if="windows" />
+		<file name='${LINC_LUA_PATH}/linc/linc_lua.cpp' unless="windows" />
+	</files>
 
-        <compilerflag value='-I${LINC_LUA_PATH}/linc/'/>
-        <file name='${LINC_LUA_PATH}/linc/linc_lua.cpp' if="android"/> <!-- it's don't want to compile for android without that '/' for some reason -->
-        <file name='${LINC_LUA_PATH}linc/linc_lua.cpp' unless="android"/>
-    </files>
+	<files id="__main__">
+		<compilerflag name="-I" value='${LINC_LUA_PATH}linc/' if="windows" />
+		<compilerflag name="-I" value='${LINC_LUA_PATH}/linc/' unless="windows" />
 
-    <files id="__main__">
-        <compilerflag value='-I${LINC_LUA_PATH}linc/'/>
-    </files>
-    
-    <target id="haxe">
-        <section if="windows">
-            <lib name='${LINC_LUA_PATH}lib/lua/lib/Windows64/lua51.lib' if='HXCPP_M64' />
-            <lib name='${LINC_LUA_PATH}lib/lua/lib/Windows/lua51.lib' if='HXCPP_M32' />
-        </section>
-        <section if="linux">
-            <lib name='${LINC_LUA_PATH}/lib/lua/lib/Linux64/libluajit.so' if='HXCPP_M64' />
-            <!-- <lib name='${LINC_LUA_PATH}/lib/lua/lib/Linux/libluajit.so' if='HXCPP_M32' /> -->
-        </section>
-        <section if="mac">
-            <lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M64' />
-            <!-- <lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M32' /> -->
-        </section>
-        <section if="android">
-            <section unless="luajit_static">
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-v7.so' if='HXCPP_ARMV7' />
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86.so' if='HXCPP_X86' />
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86_64.so' if='HXCPP_X86_64' />
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-64.so' if='HXCPP_ARM64' />
-            </section>
-        </section>
-        <section if="android">
-            <section if="luajit_static">
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-v7.a' if='HXCPP_ARMV7' />
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86.a' if='HXCPP_X86' />
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-x86_64.a' if='HXCPP_X86_64' />
-                <lib name='${LINC_LUA_PATH}/ndll/Android/libluajit-64.a' if='HXCPP_ARM64' />
-            </section>
-        </section>
-    </target>
+		<file name='${LINC_LUA_PATH}linc/linc_lua.cpp' if="windows" />
+		<file name='${LINC_LUA_PATH}/linc/linc_lua.cpp' unless="windows" />
+	</files>
 
+	<target id="haxe">
+		<section if="windows">
+			<lib name='${LINC_LUA_PATH}lib/lua/lib/Windows64/lua51.lib' if='HXCPP_M64' />
+			<lib name='${LINC_LUA_PATH}lib/lua/lib/Windows/lua51.lib' if='HXCPP_M32' />
+		</section>
+		<section if="linux">
+			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Linux64/libluajit.so' if='HXCPP_M64' />
+		</section>
+		<section if="mac">
+			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M64' />
+		</section>
+		<section if="android">
+			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Android/libluajit-v7.a' if='HXCPP_ARMV7' />
+			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Android/libluajit-x86.a' if='HXCPP_X86' />
+			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Android/libluajit-x86_64.a' if='HXCPP_X86_64' />
+			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Android/libluajit-64.a' if='HXCPP_ARM64' />
+		</section>
+	</target>
 </xml>
