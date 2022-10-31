@@ -1,13 +1,15 @@
 <xml>
 	<files id='haxe'>
-		<compilerflag value='-I${LINC_LUA_PATH}/linc/'/ />
+		<compilerflag name="-I" value='${LINC_LUA_PATH}linc/' if="windows" />
+		<compilerflag name="-I" value='${LINC_LUA_PATH}/linc/' unless="windows" />
 
 		<file name='${LINC_LUA_PATH}linc/linc_lua.cpp' if="windows" />
 		<file name='${LINC_LUA_PATH}/linc/linc_lua.cpp' unless="windows" />
 	</files>
 
 	<files id="__main__">
-		<compilerflag value='-I${LINC_LUA_PATH}/linc/'/ />
+		<compilerflag name="-I" value='${LINC_LUA_PATH}linc/' if="windows" />
+		<compilerflag name="-I" value='${LINC_LUA_PATH}/linc/' unless="windows" />
 	</files>
 
 	<target id="haxe">
