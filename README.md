@@ -7,13 +7,6 @@ This is a [linc](http://snowkit.github.io/linc/) library.
 
 This library works with the Haxe cpp target only.
 
-### Android Libs
-be default, dynamic libs are used,
-but you can use static libs instead, by adding this to build command:
-```
--D luajit_static
-```
-
 ---
 
 ### Example usage
