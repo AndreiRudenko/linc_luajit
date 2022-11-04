@@ -556,18 +556,17 @@ class Lua_helper {
 
 		var cbf = callbacks.get(fname);
 
-		if(cbf == null)
-			return 0;
+		if(cbf == null) return 0;
 
 		var args:Array<Dynamic> = [];
 
-		for (i in 0...Lua.gettop(l))
+		for (i in 0...Lua.gettop(l) {
 			args[i] = Convert.fromLua(l, i + 1);
+		}
 
 		var ret:Dynamic = Reflect.callMethod(null, cbf, args);
 
-		if(ret != null)
-			Convert.toLua(l, ret);
+		if(ret != null) Convert.toLua(l, ret);
 
 		/* return the number of results */
 		return 1;
