@@ -560,7 +560,7 @@ class Lua_helper {
 
 		var args:Array<Dynamic> = [];
 
-		for (i in 0...Lua.gettop(l) {
+		for (i in 0...Lua.gettop(l)) {
 			args[i] = Convert.fromLua(l, i + 1);
 		}
 
