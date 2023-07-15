@@ -26,6 +26,8 @@ class Convert {
 				arrayToLua(l, val);
 			case Type.ValueType.TObject:
 				objectToLua(l, val); // {}
+			case Type.ValueType.TClass(haxe.ds.StringMap):
+				mapToLua(l, val);
            // case Type.ValueType.TFunction:
            //     Lua.pushcfunction(l, val);
 			default:
@@ -59,6 +61,17 @@ class Convert {
 			Lua.settable(l, -3);
 		}
 
+	}
+
+	static inline function mapToLua(l:State, mapValue:Any) {
+		var map:haxe.ds.StringMap<Dynamic> = cast(mapValue, haxe.ds.StringMap<Dynamic>);
+
+		Lua.createtable(l, 0, 0);
+		for (key => value in map) {
+			Lua.pushstring(l, key);
+			Convert.toLua(l, value);
+			Lua.settable(l, -3);
+		}
 	}
 
 	/**
