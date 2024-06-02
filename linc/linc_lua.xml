@@ -25,9 +25,11 @@
 		<section if="linux">
 			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Linux64/libluajit.a' if='HXCPP_M64' />
 		</section>
-		<section if="mac">
-			<lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M64' />
-		</section>
+        <section if="mac">
+             <lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M64' unless='HXCPP_ARM64' />
+             <lib name='${LINC_LUA_PATH}/lib/lua/lib/MacArm/libluajit-5.1.a' if='HXCPP_ARM64' />
+            <!-- <lib name='${LINC_LUA_PATH}/lib/lua/lib/Mac/libluajit-5.1.a' if='HXCPP_M32' /> -->
+        </section>
 		<section if="android">
 			<lib name="${LINC_LUA_PATH}/lib/lua/lib/Android/arm64-v8a/libluajit.a" if="HXCPP_ARM64" />
 			<lib name="${LINC_LUA_PATH}/lib/lua/lib/Android/armeabi-v7a/libluajit.a" if="HXCPP_ARMV7" />
